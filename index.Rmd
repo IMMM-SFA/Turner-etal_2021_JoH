@@ -41,7 +41,7 @@ In Turner et al., 2021, reservoir operations data from `ResOpsUS` are used to in
 
 For this example, you will need to first load some libraries:
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message= FALSE}
 library(dplyr)
 # note: you can install `starfit` using devtools:
 # devtools::install_github("IMMM-SFA/starfit")
@@ -52,7 +52,8 @@ library(starfit)
 
 ```{r}
 
-#read_reservoir_data(500)
+print("ResOps")
+1+1
 
 ```
 
