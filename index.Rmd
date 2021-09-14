@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
 **Water storage and release policies for all large reservoirs of conterminous United States**
@@ -20,7 +20,7 @@ Sean Turner<sup>1\*</sup>, Jennie Steyaert <sup>2</sup>, Laura Condon <sup>2</su
 
 **Journal Article:** [![Generic badge](https://img.shields.io/badge/DOI-10.1016/j.jhydrol.2021.126843-orange.svg)](https://doi.org/10.1016/j.jhydrol.2021.126843)
 
-**Reservoir Operating Policies Dataset:** Inferred Storage Targets and Release Functions `ISTARF-CONUS`: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4602277.svg)](https://doi.org/10.5281/zenodo.4602277)
+**Reservoir Operating Policies Dataset:** `ISTARF-CONUS`: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4602277.svg)](https://doi.org/10.5281/zenodo.4602277)
 
 ### Contributing software
 
@@ -32,7 +32,7 @@ Sean Turner<sup>1\*</sup>, Jennie Steyaert <sup>2</sup>, Laura Condon <sup>2</su
 
 | Dataset | Version | Link | Supporting article to cite |
 |-------------|-----|------|----------------------------|
-| Global Reservoir and Dam Database `GRanD` | 1.3 | http://globaldamwatch.org/grand/ | [![Generic badge](https://img.shields.io/badge/DOI-10.1890/100125-orange.svg)](https://doi.org/10.1890/100125) |
+| Global Reservoir and Dam Database `GRanD` | 1.3 | http://globaldamwatch.org/grand/ | Lehner et al., 2011. Frontiers in Ecology and the Environment [![Generic badge](https://img.shields.io/badge/DOI-10.1890/100125-orange.svg)](https://doi.org/10.1890/100125) |
 | Reservoir Operations for CONUS `ResOpsUS` | 1.0 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5367383.svg)](https://doi.org/10.5281/zenodo.5367383) | Steyaert et al., *In Review*, Nature Scientific Data. |
 
 
@@ -41,27 +41,52 @@ In Turner et al., 2021, reservoir operations data from `ResOpsUS` are used to in
 
 For this example, you will need to first load some libraries:
 
-```{r, echo = FALSE, message= FALSE}
+```{r}
 library(dplyr)
+library(ggplot2)
+library(starfit)
 # note: you can install `starfit` using devtools:
 # devtools::install_github("IMMM-SFA/starfit")
-library(starfit)
 ```
 
-`ResOpsUS` can be downloaded in full and read into R using `starfit` function `read_reservoir_data()`. Alternatively, the same function can access `ResOpsUS` data directly from Zenodo, saving us the effort of downloading the entire dataset.
+`ResOpsUS` can be downloaded in full and read into R using `starfit` function `read_reservoir_data()`. Alternatively, the same function can access `ResOpsUS` data directly.
 
 ```{r}
+read_reservoir_data("https://raw.githubusercontent.com/IMMM-SFA/starfit/master/inst/extdata/", 297) ->
+  Libby_res_data
 
-print("ResOps")
-1+1
+Libby_res_data
+
+Libby_res_data %>%
+  ggplot(aes(date, s_MCM)) + geom_line(col = "dodgerblue") +
+  theme_classic() +
+  labs(y = NULL, x = NULL, title = "Daily Storage (MCM) @ Libby Dam")
 
 ```
 
+To convert these time series data into reservoir operating policies!
 
+```{r}
+fit_targets(
+  "https://raw.githubusercontent.com/IMMM-SFA/starfit/master/inst/extdata/",
+  "../../../IM3/Phase 2/P2 WM data-driven/Data-driven reservoir rules/GRanD_Version_1_3/",
+  297
+) -> Libby_fitted_targets
+```
 
+That's it. If we want to look at what this parameters imply in terms of weekly storage targets:
 
+```{r}
+convert_parameters_to_targets(Libby_fitted_targets$`NSR upper bound`, "upper") -> upper_bound
+convert_parameters_to_targets(Libby_fitted_targets$`NSR lower bound`, "lower") -> lower_bound
 
+# join and plot
+left_join(upper_bound, lower_bound) %>% 
+  ggplot(aes(epiweek)) + geom_ribbon(aes(ymax = upper, ymin = lower), col = "black", fill = "dodgerblue") +
+  labs(title = "Normal operating range @ Libby Dam", x = "Week of year", y = "Storage (% of capacity)") +
+  theme_classic()
+  
 
-
+```
 
 
