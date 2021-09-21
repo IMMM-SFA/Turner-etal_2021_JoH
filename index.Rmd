@@ -42,7 +42,7 @@ Sean Turner<sup>1\*</sup>, Jennie Steyaert <sup>2</sup>, Laura Condon <sup>2</su
 | Reservoir Operations for CONUS `ResOpsUS` | 1.0 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5367383.svg)](https://doi.org/10.5281/zenodo.5367383) | Steyaert et al., *In Review*, Nature Scientific Data. |
 
 
-### Example for reproducing reservoir policy using 
+### Example for inferring a reservoir policy using `starfit`
 In Turner et al., 2021, reservoir operations data from `ResOpsUS` are used to infer the operating policies of different reservoirs. The policy inference code is contained in the `starfit` package.
 
 For this example, you will need to first load some libraries:
