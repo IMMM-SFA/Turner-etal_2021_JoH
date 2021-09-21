@@ -1,6 +1,8 @@
 ---
 title: "Meta-repository for Turner et al., 2021"
-output: html_document
+output: 
+  html_document: 
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
@@ -17,10 +19,14 @@ Sean Turner<sup>1\*</sup>, Jennie Steyaert <sup>2</sup>, Laura Condon <sup>2</su
 
 \* corresponding author: sean.turner@pnnl.gov
 
+----------------------------------------------
 
 **Journal Article:** [![Generic badge](https://img.shields.io/badge/DOI-10.1016/j.jhydrol.2021.126843-orange.svg)](https://doi.org/10.1016/j.jhydrol.2021.126843)
 
+
 **Reservoir Operating Policies Dataset:** `ISTARF-CONUS`: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4602277.svg)](https://doi.org/10.5281/zenodo.4602277)
+
+----------------------------------------------
 
 ### Contributing software
 
@@ -36,7 +42,7 @@ Sean Turner<sup>1\*</sup>, Jennie Steyaert <sup>2</sup>, Laura Condon <sup>2</su
 | Reservoir Operations for CONUS `ResOpsUS` | 1.0 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5367383.svg)](https://doi.org/10.5281/zenodo.5367383) | Steyaert et al., *In Review*, Nature Scientific Data. |
 
 
-## Reproduce my experiment
+### Example for reproducing reservoir policy using 
 In Turner et al., 2021, reservoir operations data from `ResOpsUS` are used to infer the operating policies of different reservoirs. The policy inference code is contained in the `starfit` package.
 
 For this example, you will need to first load some libraries:
@@ -49,10 +55,14 @@ library(starfit)
 # devtools::install_github("IMMM-SFA/starfit")
 ```
 
-`ResOpsUS` can be downloaded in full and read into R using `starfit` function `read_reservoir_data()`. Alternatively, the same function can access `ResOpsUS` data directly.
+
+**NOTE: `ResOpsUS` is currently under embargo but will be publically available after November 8, 2021. Once these data are open, the `starfit` function `read_reservoir_data()` will allow one to access the data directly using `starfit` function `read_reservoir_data()`.
 
 ```{r}
-read_reservoir_data("https://raw.githubusercontent.com/IMMM-SFA/starfit/master/inst/extdata/", 297) ->
+read_reservoir_data(
+  "https://raw.githubusercontent.com/IMMM-SFA/starfit/master/inst/extdata/",
+  # ^^ a placeholder example record is stored at this site pending ResOpsUS public release
+  297) ->
   Libby_res_data
 
 Libby_res_data
@@ -64,7 +74,7 @@ Libby_res_data %>%
 
 ```
 
-To convert these time series data into reservoir operating policies!
+To convert these time series data into a normal operating range:
 
 ```{r}
 fit_targets(
@@ -72,9 +82,12 @@ fit_targets(
   "../../../IM3/Phase 2/P2 WM data-driven/Data-driven reservoir rules/GRanD_Version_1_3/",
   297
 ) -> Libby_fitted_targets
+
+# NOR parameters are contained in Libby_fitted_targets:
+Libby_fitted_targets
 ```
 
-That's it. If we want to look at what this parameters imply in terms of weekly storage targets:
+That's it. If we want to see what those parameters looked like when converted to storage targets:
 
 ```{r}
 convert_parameters_to_targets(Libby_fitted_targets$`NSR upper bound`, "upper") -> upper_bound
@@ -85,8 +98,6 @@ left_join(upper_bound, lower_bound) %>%
   ggplot(aes(epiweek)) + geom_ribbon(aes(ymax = upper, ymin = lower), col = "black", fill = "dodgerblue") +
   labs(title = "Normal operating range @ Libby Dam", x = "Week of year", y = "Storage (% of capacity)") +
   theme_classic()
-  
-
 ```
 
 
